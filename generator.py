@@ -2,19 +2,47 @@ import random
 import requests
 import time
 import sys
+import os
 
 URL_SIGNUP = "https://auth.roblox.com/v2/signup"
 URL_LOGIN = "https://auth.roblox.com/v2/login"
 URL_MAIN = "https://www.roblox.com"
 
-BANNER = """
-  ___________   .__    .___  __      __                     .__              
- /   _____/  | _|__| __| _/ /  \    /  \_____ ______________|__| ___________ 
- \_____  \|  |/ /  |/ __ |  \   \/\/   /\__  \\_  __ \_  __ \  |/  _ \_  __ \\
- /        \    <|  / /_/ |   \        /  / __ \|  | \/|  | \/  (  <_> )  | \/
-/_______  /__|_ \__\____ |    \__/\  /  (____  /__|   |__|  |__|\____/|__|   
-        \/     \/       \/         \/        \/                              
-"""
+def get_download_path():
+    base_path = "/sdcard/Download"
+    folder_path = os.path.join(base_path, "roblox accs")
+    
+    if not os.path.exists(base_path):
+        folder_path = os.path.join(os.path.expanduser("~"), "roblox_accs")
+        
+    if not os.path.exists(folder_path):
+        try:
+            os.makedirs(folder_path)
+        except:
+            folder_path = os.path.expanduser("~")
+            
+    return os.path.join(folder_path, "accs.txt")
+
+def print_gradient_banner():
+    banner = [
+        "   _____ _tp_       ",
+        "  / ____| |  (_)    ",
+        " | (___ | | ___  _  ",
+        "  \\___ \\| |/ / | | |",
+        "  ____) |   <| | |_|",
+        " |_____/|_|\\_\\_|\\__,|"
+    ]
+    
+    for line in banner:
+        colored_line = ""
+        for i, char in enumerate(line):
+            r = int(140 + (i * 4.5))
+            g = int(0)
+            b = int(255 - (i * 4.5))
+            r = max(0, min(255, r))
+            b = max(0, min(255, b))
+            colored_line += f"\033[38;2;{r};{g};{b}m{char}"
+        print(colored_line + "\033[0m")
 
 def get_user():
     pre = ["Xx_", "ii_", "v_", ""]
@@ -50,7 +78,8 @@ def get_csrf():
 
 def run_generator():
     created = 0
-    target = 4
+    target = 1
+    file_dest = get_download_path()
     
     print(f"\n[!] Starting generation for {target} accounts...")
     
@@ -88,7 +117,7 @@ def run_generator():
             if res.status_code == 200:
                 created += 1
                 print(f"[+] Success ({created}/{target})")
-                with open("file.txt", "a") as f:
+                with open(file_dest, "a") as f:
                     f.write(f"Username: {username} | Password: {password}\n")
             elif res.status_code == 403 or "Rblx-Challenge-Metadata" in res.headers:
                 print(" -> Hit captcha or rate limit, skipping name...")
@@ -103,10 +132,10 @@ def run_generator():
         time.sleep(delay)
         
     print("[==== DONE ====]")
-    print("[!] 4 accounts successfully saved to file.txt\n")
+    print(f"[!] Saved to Downloads/roblox accs/accs.txt\n")
 
 def main():
-    print(BANNER)
+    print_gradient_banner()
     print("Type '! start' to create 4 accounts, or 'exit' to close.")
     
     while True:
