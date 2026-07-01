@@ -87,7 +87,7 @@ def run_generator():
     max_failures = 3
     file_dest = get_download_path()
     
-    print(f"\n[!] starting for {target} accs...")
+    print(f"\n[!] starting for {target} accs")
     
     while created < target:
         if failed_attempts >= max_failures:
@@ -100,7 +100,7 @@ def run_generator():
         token = get_csrf()
         
         if not token:
-            print("[!] token error retrying...")
+            print("[!] token error retrying..")
             time.sleep(3)
             failed_attempts += 1
             continue
@@ -133,7 +133,7 @@ def run_generator():
                 with open(file_dest, "a") as f:
                     f.write(f"Username: {username} | Password: {password}\n")
             elif res.status_code == 403 or "Rblx-Challenge-Metadata" in res.headers:
-                print(" -> captcha or rate limit skipping...")
+                print(" > captcha or rate limit skipping...")
                 failed_attempts += 1
             else:
                 print(f" -> error: {res.status_code}")
@@ -144,7 +144,7 @@ def run_generator():
             failed_attempts += 1
             
         delay = random.randint(8, 15)
-        print(f" -> delay {delay}s...")
+        print(f" > delay {delay}s....")
         time.sleep(delay)
         
     if created == target:
@@ -161,7 +161,7 @@ def main():
             if cmd == "! start":
                 run_generator()
             elif cmd == "exit":
-                print("exiting...")
+                print("exiting")
                 sys.exit()
             elif cmd == "":
                 continue
