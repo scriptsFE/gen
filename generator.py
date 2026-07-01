@@ -11,16 +11,13 @@ URL_MAIN = "https://www.roblox.com"
 def get_download_path():
     base_path = "/sdcard/Download"
     folder_path = os.path.join(base_path, "roblox accs")
-    
     if not os.path.exists(base_path):
         folder_path = os.path.join(os.path.expanduser("~"), "roblox_accs")
-        
     if not os.path.exists(folder_path):
         try:
             os.makedirs(folder_path)
         except:
             folder_path = os.path.expanduser("~")
-            
     return os.path.join(folder_path, "accs.txt")
 
 def print_gradient_banner():
@@ -36,7 +33,6 @@ def print_gradient_banner():
         "      ░  ░  ░    ░     ░       ░       ░  ░   ░    ",
         "                     ░       ░              ░      "
     ]
-    
     for line in banner:
         colored_line = ""
         for i, char in enumerate(line):
@@ -52,19 +48,15 @@ def get_user():
     pre = ["Xx_", "ii_", "v_", ""]
     w1 = ["Night", "Royal", "Dark", "Shadow", "Ghost", "Cyber", "Nova", "Alpha", "Hyper"]
     w2 = ["Nova", "Driver", "Blade", "Wolf", "Phantom", "Knight", "Hunter", "Viper", "Echo"]
-    
     p = random.choice(pre)
     word1 = random.choice(w1)
     word2 = random.choice(w2)
-    
     while word1 == word2:
         word2 = random.choice(w2)
-        
     num = random.randint(100, 9999)
     s = ""
     if p == "Xx_": s = "_xX"
     elif p == "ii_": s = "_ii"
-    
     name = f"{p}{word1}{word2}{num}{s}"
     return name[:20]
 
@@ -87,12 +79,12 @@ def run_generator():
     max_failures = 3
     file_dest = get_download_path()
     
-    print(f"\n[!] starting for {target} accs")
+    print(f"\n[!] starting for {target} accs...")
     
     while created < target:
         if failed_attempts >= max_failures:
             print(f"\n[!] stopped: hit wall {max_failures} times straight")
-            print("[!] switch ip or vpn then retry")
+            print("[!] switch network, use data, or vpn then retry")
             break
             
         username = get_user()
@@ -100,7 +92,7 @@ def run_generator():
         token = get_csrf()
         
         if not token:
-            print("[!] token error retrying..")
+            print("[!] token error retrying...")
             time.sleep(3)
             failed_attempts += 1
             continue
@@ -133,7 +125,7 @@ def run_generator():
                 with open(file_dest, "a") as f:
                     f.write(f"Username: {username} | Password: {password}\n")
             elif res.status_code == 403 or "Rblx-Challenge-Metadata" in res.headers:
-                print(" > captcha or rate limit skipping...")
+                print(" -> captcha or rate limit skipping...")
                 failed_attempts += 1
             else:
                 print(f" -> error: {res.status_code}")
@@ -144,7 +136,7 @@ def run_generator():
             failed_attempts += 1
             
         delay = random.randint(8, 15)
-        print(f" > delay {delay}s....")
+        print(f" -> delay {delay}s...")
         time.sleep(delay)
         
     if created == target:
@@ -161,7 +153,7 @@ def main():
             if cmd == "! start":
                 run_generator()
             elif cmd == "exit":
-                print("exiting")
+                print("exiting...")
                 sys.exit()
             elif cmd == "":
                 continue
