@@ -25,20 +25,24 @@ def get_download_path():
 
 def print_gradient_banner():
     banner = [
-        "   _____ _tp_       ",
-        "  / ____| |  (_)    ",
-        " | (___ | | ___  _  ",
-        "  \\___ \\| |/ / | | |",
-        "  ____) |   <| | |_|",
-        " |_____/|_|\\_\\_|\\__,|"
+        "  ██████  ██ ▄█▀ ██▓▓█████▄ ▓█████▄ ▓█████ ▓█████▄ ",
+        "▒██    ▒  ██▄█▒ ▓██▒▒██▀ ██▌▒██▀ ██▌▓█   ▀ ▒██▀ ██▌",
+        "░ ▓██▄   ▓███▄░ ▒██▒░██   █▌░██   █▌▒███   ░██   █▌",
+        "  ▒   ██▒▓██ █▄ ░██░░▓█▄   ▌░▓█▄   ▌▒▓█  ▄ ░▓█▄   ▌",
+        "▒██████▒▒▒██▒ █▄░██░░▒████▓ ░▒████▓ ░▒████▒░▒████▓ ",
+        "▒ ▒▓▒ ▒ ░▒ ▒▒ ▓▒░▓   ▒▒▓  ▒  ▒▒▓  ▒ ░░ ▒░ ░ ▒▒▓  ▒ ",
+        "░ ░▒  ░ ░░ ░▒ ▒░ ▒ ░ ░ ▒  ▒  ░ ▒  ▒  ░ ░  ░ ░ ▒  ▒ ",
+        "░  ░  ░  ░ ░░ ░  ▒ ░ ░ ░  ░  ░ ░  ░    ░    ░ ░  ░ ",
+        "      ░  ░  ░    ░     ░       ░       ░  ░   ░    ",
+        "                     ░       ░              ░      "
     ]
     
     for line in banner:
         colored_line = ""
         for i, char in enumerate(line):
-            r = int(140 + (i * 4.5))
+            r = int(140 + (i * 2.5))
             g = int(0)
-            b = int(255 - (i * 4.5))
+            b = int(255 - (i * 2.5))
             r = max(0, min(255, r))
             b = max(0, min(255, b))
             colored_line += f"\033[38;2;{r};{g};{b}m{char}"
@@ -78,19 +82,27 @@ def get_csrf():
 
 def run_generator():
     created = 0
-    target = 1
+    target = 4
+    failed_attempts = 0
+    max_failures = 3
     file_dest = get_download_path()
     
-    print(f"\n[!] Starting generation for {target} accounts...")
+    print(f"\n[!] starting for {target} accs...")
     
     while created < target:
+        if failed_attempts >= max_failures:
+            print(f"\n[!] stopped: hit wall {max_failures} times straight")
+            print("[!] switch ip or vpn then retry")
+            break
+            
         username = get_user()
         password = "Sugi pula"
         token = get_csrf()
         
         if not token:
-            print("[!] Token error, retrying in 3s...")
+            print("[!] token error retrying...")
             time.sleep(3)
+            failed_attempts += 1
             continue
             
         headers = {
@@ -109,34 +121,39 @@ def run_generator():
             "isCheckUsernameOnly": False
         }
         
-        print(f" -> Trying: {username}")
+        print(f" -> checking: {username}")
         
         try:
             res = requests.post(URL_SIGNUP, json=payload, headers=headers, timeout=10)
             
             if res.status_code == 200:
                 created += 1
-                print(f"[+] Success ({created}/{target})")
+                failed_attempts = 0
+                print(f"[+] hit ({created}/{target})")
                 with open(file_dest, "a") as f:
                     f.write(f"Username: {username} | Password: {password}\n")
             elif res.status_code == 403 or "Rblx-Challenge-Metadata" in res.headers:
-                print(" -> Hit captcha or rate limit, skipping name...")
+                print(" -> captcha or rate limit skipping...")
+                failed_attempts += 1
             else:
-                print(f" -> Error code: {res.status_code}")
+                print(f" -> error: {res.status_code}")
+                failed_attempts += 1
                 
         except Exception as e:
-            print(f" -> Connection drop: {e}")
+            print(f" -> connection drop: {e}")
+            failed_attempts += 1
             
         delay = random.randint(8, 15)
-        print(f" -> Waiting {delay}s before next request...")
+        print(f" -> delay {delay}s...")
         time.sleep(delay)
         
-    print("[==== DONE ====]")
-    print(f"[!] Saved to Downloads/roblox accs/accs.txt\n")
+    if created == target:
+        print("[==== DONE ====]")
+        print(f"[!] saved to Downloads/roblox accs/accs.txt\n")
 
 def main():
     print_gradient_banner()
-    print("Type '! start' to create 4 accounts, or 'exit' to close.")
+    print("type '! start' or 'exit'")
     
     while True:
         try:
@@ -144,14 +161,14 @@ def main():
             if cmd == "! start":
                 run_generator()
             elif cmd == "exit":
-                print("Exiting...")
+                print("exiting...")
                 sys.exit()
             elif cmd == "":
                 continue
             else:
-                print("Unknown command. Use '! start'")
+                print("unknown cmd use '! start'")
         except (KeyboardInterrupt, EOFError):
-            print("\nExiting...")
+            print("\nexiting...")
             sys.exit()
 
 if __name__ == "__main__":
