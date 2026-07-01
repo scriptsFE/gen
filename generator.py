@@ -7,6 +7,15 @@ URL_SIGNUP = "https://auth.roblox.com/v2/signup"
 URL_LOGIN = "https://auth.roblox.com/v2/login"
 URL_MAIN = "https://www.roblox.com"
 
+BANNER = """
+  ___________   .__    .___  __      __                     .__              
+ /   _____/  | _|__| __| _/ /  \    /  \_____ ______________|__| ___________ 
+ \_____  \|  |/ /  |/ __ |  \   \/\/   /\__  \\_  __ \_  __ \  |/  _ \_  __ \\
+ /        \    <|  / /_/ |   \        /  / __ \|  | \/|  | \/  (  <_> )  | \/
+/_______  /__|_ \__\____ |    \__/\  /  (____  /__|   |__|  |__|\____/|__|   
+        \/     \/       \/         \/        \/                              
+"""
+
 def get_user():
     pre = ["Xx_", "ii_", "v_", ""]
     w1 = ["Night", "Royal", "Dark", "Shadow", "Ghost", "Cyber", "Nova", "Alpha", "Hyper"]
@@ -51,8 +60,8 @@ def run_generator():
         token = get_csrf()
         
         if not token:
-            print("[!] Token error, retrying in 2s...")
-            time.sleep(2)
+            print("[!] Token error, retrying in 3s...")
+            time.sleep(3)
             continue
             
         headers = {
@@ -82,21 +91,23 @@ def run_generator():
                 with open("file.txt", "a") as f:
                     f.write(f"Username: {username} | Password: {password}\n")
             elif res.status_code == 403 or "Rblx-Challenge-Metadata" in res.headers:
-                print(" -> Hit captcha, skipping name...")
+                print(" -> Hit captcha or rate limit, skipping name...")
             else:
                 print(f" -> Error code: {res.status_code}")
                 
         except Exception as e:
             print(f" -> Connection drop: {e}")
             
-        time.sleep(3)
+        delay = random.randint(8, 15)
+        print(f" -> Waiting {delay}s before next request...")
+        time.sleep(delay)
         
     print("[==== DONE ====]")
     print("[!] 4 accounts successfully saved to file.txt\n")
 
 def main():
-    print("Generator loaded.")
-    print("Type '! start' to create 4 accounts, or 'exit' to close")
+    print(BANNER)
+    print("Type '! start' to create 4 accounts, or 'exit' to close.")
     
     while True:
         try:
@@ -104,7 +115,7 @@ def main():
             if cmd == "! start":
                 run_generator()
             elif cmd == "exit":
-                print("Exiting")
+                print("Exiting...")
                 sys.exit()
             elif cmd == "":
                 continue
